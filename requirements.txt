@@ -1,0 +1,37 @@
+# DevOps Microservices Project – Command Checklist
+
+# 1. Workspace & Git
+cd ~/Desktop
+git clone https://github.com/povrajanapen/e-commerce-microservices.git
+cd e-commerce-microservices
+
+# 2. Frontend (Next.js, pnpm)
+cd frontend
+pnpm install
+pnpm dev
+
+# 3. Backend layout
+cd ..
+mkdir -p backend/{user-service,product-service,order-service,infra}
+
+# 4. User Service
+cd backend/user-service
+npm init -y
+npm install express mongoose cors dotenv
+npm start
+
+# 5. Product Service
+cd ../product-service
+npm init -y
+npm install express mongoose cors dotenv
+npm start
+
+# 6. Order Service
+cd ../order-service
+npm init -y
+npm install express mongoose cors dotenv axios
+npm start
+
+# 7. Docker (from backend/infra)
+cd ../infra
+docker compose up --build
