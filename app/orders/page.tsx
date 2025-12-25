@@ -12,6 +12,10 @@ export default function Orders() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
 
+  const usersUrl = process.env.NEXT_PUBLIC_USERS_SERVICE_URL
+  const productsUrl = process.env.NEXT_PUBLIC_PRODUCTS_SERVICE_URL
+  const ordersUrl = process.env.NEXT_PUBLIC_ORDERS_SERVICE_URL
+
   useEffect(() => {
     fetchData()
   }, [])
@@ -20,9 +24,9 @@ export default function Orders() {
     setLoading(true)
     try {
       const [ordersRes, usersRes, productsRes] = await Promise.all([
-        fetch("http://order-service:3003/orders"),
-        fetch("http://user-service:3001/users"),
-        fetch("http://product-service:3002/products"),
+        fetch(`${ordersUrl}/orders`),
+        fetch(`${usersUrl}/users`),
+        fetch(`${productsUrl}/products`),
       ])
       const [ordersData, usersData, productsData] = await Promise.all([
         ordersRes.json(),
@@ -41,7 +45,7 @@ export default function Orders() {
 
   const handleAddOrder = async (userId: string, productId: string, quantity: number) => {
     try {
-      const res = await fetch("http://order-service:3003/orders", {
+      const res = await fetch(`${ordersUrl}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, productId, quantity }),

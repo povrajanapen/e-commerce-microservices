@@ -10,6 +10,8 @@ export default function Users() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
 
+  const baseUrl = process.env.NEXT_PUBLIC_USERS_SERVICE_URL
+
   useEffect(() => {
     fetchUsers()
   }, [])
@@ -17,8 +19,9 @@ export default function Users() {
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      // Placeholder: In real app, fetch from API
-      setUsers([])
+      const res = await fetch(`${baseUrl}/users`)
+      const data = await res.json()
+      setUsers(data)
     } catch (error) {
       console.error("Failed to fetch users:", error)
     } finally {
@@ -28,7 +31,7 @@ export default function Users() {
 
   const handleAddUser = async (name: string, email: string) => {
     try {
-      const res = await fetch("http://user-service:3001/users", {
+      const res = await fetch(`${baseUrl}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email }),

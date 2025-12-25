@@ -10,6 +10,8 @@ export default function Products() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
 
+  const baseUrl = process.env.NEXT_PUBLIC_PRODUCTS_SERVICE_URL
+
   useEffect(() => {
     fetchProducts()
   }, [])
@@ -17,7 +19,7 @@ export default function Products() {
   const fetchProducts = async () => {
     setLoading(true)
     try {
-      const res = await fetch("http://product-service:3002/products")
+      const res = await fetch(`${baseUrl}/products`)
       const data = await res.json()
       setProducts(data)
     } catch (error) {
@@ -29,7 +31,7 @@ export default function Products() {
 
   const handleAddProduct = async (title: string, author: string, price: number) => {
     try {
-      const res = await fetch("http://product-service:3002/products", {
+      const res = await fetch(`${baseUrl}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, author, price }),
