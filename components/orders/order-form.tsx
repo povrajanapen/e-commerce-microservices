@@ -9,12 +9,16 @@ interface OrderFormProps {
   users: any[]
   products: any[]
   onSubmit: (userId: string, productId: string, quantity: number) => void
+  mode?: "create" | "edit"
+  initialUserId?: string
+  initialProductId?: string
+  initialQuantity?: number
 }
 
-export default function OrderForm({ users, products, onSubmit }: OrderFormProps) {
-  const [userId, setUserId] = useState("")
-  const [productId, setProductId] = useState("")
-  const [quantity, setQuantity] = useState(1)
+export default function OrderForm({ users, products, onSubmit, mode = "create", initialUserId, initialProductId, initialQuantity }: OrderFormProps) {
+  const [userId, setUserId] = useState(initialUserId || "")
+  const [productId, setProductId] = useState(initialProductId || "")
+  const [quantity, setQuantity] = useState(initialQuantity ?? 1)
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,14 +28,19 @@ export default function OrderForm({ users, products, onSubmit }: OrderFormProps)
     setLoading(true)
     await onSubmit(userId, productId, quantity)
     setLoading(false)
-    setUserId("")
-    setProductId("")
-    setQuantity(1)
+
+    if (mode === "create") {
+      setUserId("")
+      setProductId("")
+      setQuantity(1)
+    }
   }
 
   return (
     <div className="rounded-lg border border-border bg-card p-6">
-      <h2 className="text-lg font-semibold text-foreground mb-4">Create Order</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">
+        {mode === "edit" ? "Edit Order" : "Create Order"}
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">Customer</label>
@@ -79,7 +88,7 @@ export default function OrderForm({ users, products, onSubmit }: OrderFormProps)
           className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Plus className="h-4 w-4" />
-          Create Order
+          {mode === "edit" ? "Save Changes" : "Create Order"}
         </button>
       </form>
     </div>

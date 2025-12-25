@@ -6,8 +6,14 @@ import { ChevronLeft } from "lucide-react"
 import UserForm from "@/components/users/user-form"
 import UserList from "@/components/users/user-list"
 
+interface User {
+  _id: string
+  name: string
+  email: string
+}
+
 export default function Users() {
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
   const baseUrl = process.env.NEXT_PUBLIC_USERS_SERVICE_URL
@@ -26,6 +32,34 @@ export default function Users() {
       console.error("Failed to fetch users:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUpdateUser = async (id: string, name: string, email: string) => {
+    try {
+      const res = await fetch(`${baseUrl}/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      })
+      if (!res.ok) return
+      const updated = await res.json()
+      setUsers(users.map((u: any) => (u._id === id ? updated : u)))
+    } catch (error) {
+      console.error("Failed to update user:", error)
+    }
+  }
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      const res = await fetch(`${baseUrl}/users/${id}`, {
+        method: "DELETE",
+      })
+      if (res.ok) {
+        setUsers(users.filter((u: any) => u._id !== id))
+      }
+    } catch (error) {
+      console.error("Failed to delete user:", error)
     }
   }
 
@@ -66,7 +100,7 @@ export default function Users() {
 
           {/* Users List */}
           <div className="lg:col-span-2">
-            <UserList users={users} loading={loading} />
+            <UserList users={users} loading={loading} onUpdate={handleUpdateUser} onDelete={handleDeleteUser} />
           </div>
         </div>
       </div>

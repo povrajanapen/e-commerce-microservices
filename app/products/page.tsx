@@ -6,8 +6,15 @@ import { ChevronLeft } from "lucide-react"
 import ProductForm from "@/components/products/product-form"
 import ProductList from "@/components/products/product-list"
 
+type Product = {
+  _id: string
+  title: string
+  author: string
+  price: number
+}
+
 export default function Products() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
 
   const baseUrl = process.env.NEXT_PUBLIC_PRODUCTS_SERVICE_URL
@@ -20,7 +27,7 @@ export default function Products() {
     setLoading(true)
     try {
       const res = await fetch(`${baseUrl}/products`)
-      const data = await res.json()
+      const data: Product[] = await res.json()
       setProducts(data)
     } catch (error) {
       console.error("Failed to fetch products:", error)
@@ -36,10 +43,38 @@ export default function Products() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, author, price }),
       })
-      const newProduct = await res.json()
-      setProducts([...products, newProduct])
+      const newProduct: Product = await res.json()
+      setProducts((prev) => [...prev, newProduct])
     } catch (error) {
       console.error("Failed to create product:", error)
+    }
+  }
+
+  const handleUpdateProduct = async (id: string, title: string, author: string, price: number) => {
+    try {
+      const res = await fetch(`${baseUrl}/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, author, price }),
+      })
+      if (!res.ok) return
+      const updated: Product = await res.json()
+      setProducts((prev) => prev.map((p) => (p._id === id ? updated : p)))
+    } catch (error) {
+      console.error("Failed to update product:", error)
+    }
+  }
+
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      const res = await fetch(`${baseUrl}/products/${id}`, {
+        method: "DELETE",
+      })
+      if (res.ok) {
+        setProducts((prev) => prev.filter((p) => p._id !== id))
+      }
+    } catch (error) {
+      console.error("Failed to delete product:", error)
     }
   }
 
@@ -66,7 +101,12 @@ export default function Products() {
 
           {/* Products List */}
           <div className="lg:col-span-2">
-            <ProductList products={products} loading={loading} />
+            <ProductList
+              products={products}
+              loading={loading}
+              onUpdate={handleUpdateProduct}
+              onDelete={handleDeleteProduct}
+            />
           </div>
         </div>
       </div>

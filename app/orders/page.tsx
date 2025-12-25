@@ -7,9 +7,9 @@ import OrderForm from "@/components/orders/order-form"
 import OrderList from "@/components/orders/order-list"
 
 export default function Orders() {
-  const [orders, setOrders] = useState([])
-  const [users, setUsers] = useState([])
-  const [products, setProducts] = useState([])
+  const [orders, setOrders] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
+  const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
   const usersUrl = process.env.NEXT_PUBLIC_USERS_SERVICE_URL
@@ -59,6 +59,34 @@ export default function Orders() {
     }
   }
 
+  const handleUpdateOrder = async (id: string, userId: string, productId: string, quantity: number) => {
+    try {
+      const res = await fetch(`${ordersUrl}/orders/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, productId, quantity }),
+      })
+      if (!res.ok) return
+      const updated = await res.json()
+      setOrders(orders.map((o: any) => (o._id === id ? updated : o)))
+    } catch (error) {
+      console.error("Failed to update order:", error)
+    }
+  }
+
+  const handleDeleteOrder = async (id: string) => {
+    try {
+      const res = await fetch(`${ordersUrl}/orders/${id}`, {
+        method: "DELETE",
+      })
+      if (res.ok) {
+        setOrders(orders.filter((o: any) => o._id !== id))
+      }
+    } catch (error) {
+      console.error("Failed to delete order:", error)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -82,7 +110,14 @@ export default function Orders() {
 
           {/* Orders List */}
           <div className="lg:col-span-2">
-            <OrderList orders={orders} users={users} products={products} loading={loading} />
+            <OrderList
+              orders={orders}
+              users={users}
+              products={products}
+              loading={loading}
+              onUpdate={handleUpdateOrder}
+              onDelete={handleDeleteOrder}
+            />
           </div>
         </div>
       </div>
