@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
+import { LogoutButton } from "@/components/auth/logout-button"
 import OrderForm from "@/components/orders/order-form"
 import OrderList from "@/components/orders/order-list"
 
@@ -16,9 +18,18 @@ export default function Orders() {
   const productsUrl = process.env.NEXT_PUBLIC_PRODUCTS_SERVICE_URL
   const ordersUrl = process.env.NEXT_PUBLIC_ORDERS_SERVICE_URL
 
+  const router = useRouter()
+
   useEffect(() => {
+    if (typeof window === "undefined") return
+    const token = window.localStorage.getItem("auth_token")
+    if (!token) {
+      router.replace("/login")
+      return
+    }
+
     fetchData()
-  }, [])
+  }, [router])
 
   const fetchData = async () => {
     setLoading(true)
@@ -92,10 +103,16 @@ export default function Orders() {
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Link>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
+            <LogoutButton />
+          </div>
           <h1 className="text-3xl font-bold text-foreground">Manage Orders</h1>
           <p className="mt-2 text-muted-foreground">Process and track customer orders</p>
         </div>

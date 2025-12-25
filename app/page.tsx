@@ -1,9 +1,22 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { BookOpen, Users, ShoppingCart, ArrowRight } from "lucide-react"
+import { LogoutButton } from "@/components/auth/logout-button"
 
 export default function Home() {
+  const router = useRouter()
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const token = window.localStorage.getItem("auth_token")
+    if (!token) {
+      router.replace("/login")
+    }
+  }, [router])
+
   const features = [
     {
       name: "Manage Users",
@@ -38,6 +51,7 @@ export default function Home() {
               <BookOpen className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold text-foreground">Books Store</h1>
             </div>
+            <LogoutButton />
           </div>
         </div>
       </nav>
